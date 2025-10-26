@@ -1,0 +1,22 @@
+{
+  "types": {"resourceTypeGeneral": "Dataset"},
+  "titles": [{"title": "GLP-1 Safety Surveillance (FAERS + RxNorm)"}],
+  "creators": [{"name": "Manikonda, Srikar"}],
+  "publisher": "GitHub",
+  "publicationYear": 2025,
+  "subjects": [
+    {"subject": "Pharmacovigilance"},
+    {"subject": "FAERS"},
+    {"subject": "GLP-1"}
+  ],
+  "contributors": [],
+  "language": "en",
+  "version": "0.1.0",
+  "rightsList": [{"rights": "CC0-1.0"}],
+  "descriptions": [
+    {
+      "description": "Analysis-ready curation of U.S. FAERS adverse-event reports (2021–present) for GLP-1 drugs (semaglutide, tirzepatide), with RxNorm normalization. Outputs include Reports.csv, Drugs.csv, Reactions.csv, and Safety_surveillance.csv.",
+      "descriptionType": "Abstract"
+    }
+  ]
+}
