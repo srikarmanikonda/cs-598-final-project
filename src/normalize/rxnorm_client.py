@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import requests
 
@@ -28,18 +28,21 @@ class RxNormClient:
             json.dump(self.cache, f, ensure_ascii=False, indent=2)
         os.replace(tmp, RXNORM.cache_file)
 
+    def _throttle(self) -> None:
+        time.sleep(60.0 / max(1, RXNORM.requests_per_minute))
+
     def get_rxcui(self, name: str) -> Optional[str]:
         key = name.strip().lower()
         if not key:
             return None
-        if key in self.cache:
-            return self.cache[key].get("rxcui")
+        if key in self.cache and "rxcui" in self.cache[key]:
+            return self.cache[key].get("rxcui") or None
 
         url = f"{RXNORM.base_url}/rxcui.json"
         params = {"name": name}
         resp = requests.get(url, params=params, timeout=20)
         if resp.status_code != 200:
-            time.sleep(60.0 / max(1, RXNORM.requests_per_minute))
+            self._throttle()
             return None
         data = resp.json()
         rxcui = None
@@ -47,9 +50,52 @@ class RxNormClient:
         ids = id_group.get("rxnormId", [])
         if isinstance(ids, list) and ids:
             rxcui = ids[0]
-        self.cache[key] = {"rxcui": rxcui or ""}
+        if key not in self.cache:
+            self.cache[key] = {}
+        self.cache[key]["rxcui"] = rxcui or ""
         self._save_cache()
-        time.sleep(60.0 / max(1, RXNORM.requests_per_minute))
+        self._throttle()
         return rxcui
 
+    def get_ingredient(self, rxcui: str) -> Tuple[Optional[str], Optional[str]]:
 
+        if not rxcui:
+            return (None, None)
+        cache_key = f"_ing_{rxcui}"
+        if cache_key in self.cache:
+            entry = self.cache[cache_key]
+            ing_rxcui = entry.get("ingredient_rxcui") or None
+            ing_name = entry.get("ingredient_name") or None
+            return (ing_rxcui, ing_name)
+
+        url = f"{RXNORM.base_url}/rxcui/{rxcui}/related.json"
+        params = {"tty": "IN"}
+        try:
+            resp = requests.get(url, params=params, timeout=20)
+        except Exception:
+            self._throttle()
+            return (None, None)
+        if resp.status_code != 200:
+            self._throttle()
+            return (None, None)
+
+        data = resp.json()
+        ing_rxcui = None
+        ing_name = None
+        related_group = data.get("relatedGroup", {})
+        concept_groups = related_group.get("conceptGroup", [])
+        for cg in concept_groups:
+            if cg.get("tty") == "IN":
+                props = cg.get("conceptProperties", [])
+                if props:
+                    ing_rxcui = props[0].get("rxcui")
+                    ing_name = props[0].get("name")
+                break
+
+        self.cache[cache_key] = {
+            "ingredient_rxcui": ing_rxcui or "",
+            "ingredient_name": ing_name or "",
+        }
+        self._save_cache()
+        self._throttle()
+        return (ing_rxcui, ing_name)

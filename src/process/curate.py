@@ -1,12 +1,12 @@
 import json
 import os
 from collections import defaultdict
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
 from src.common.config import PATHS, ensure_directories
-from src.common.utils import parse_faers_date
+from src.common.utils import parse_faers_date, sha256_file
 from src.normalize.rxnorm_client import RxNormClient
 
 
@@ -121,7 +121,6 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
     total_valid = len(valid_records)
     total_rejected = total_input - total_valid
 
-
     for rec in valid_records:
         rep_id = rec.get("safetyreportid")
         if not rep_id:
@@ -198,14 +197,15 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
             else:
                 role_std = "ASSOCIATED"
             rxcui = rx.get_rxcui(original) if original else None
+            ing_rxcui, ing_name = rx.get_ingredient(rxcui) if rxcui else (None, None)
             drugs_rows.append(
                 {
                     "safetyreportid": rep_id,
                     "drug_role": role_std,
                     "drug_name_original": original,
                     "rxcui": rxcui,
-                    "ingredient_rxcui": None,
-                    "ingredient_name": None,
+                    "ingredient_rxcui": ing_rxcui,
+                    "ingredient_name": ing_name,
                     "brand_name": None,
                 }
             )
@@ -234,7 +234,6 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
     )
     agg_csv = os.path.join(out_dir, "Safety_surveillance.csv")
     agg.to_csv(agg_csv, index=False)
-
 
     def pct_non_null(series: pd.Series) -> float:
         if len(series) == 0:
@@ -268,12 +267,32 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
     with open(qa_path, "w", encoding="utf-8") as qf:
         qf.write("\n".join(qa_lines) + "\n")
 
+
+    manifest_lines = []
+    manifest_lines.append("MANIFEST")
+    manifest_lines.append("========")
+    manifest_lines.append("")
+    manifest_lines.append("Row counts:")
+    manifest_lines.append(f"- Reports.csv: {len(df_reports)} rows")
+    manifest_lines.append(f"- Drugs.csv: {len(df_drugs)} rows")
+    manifest_lines.append(f"- Reactions.csv: {len(df_reactions)} rows")
+    manifest_lines.append(f"- Safety_surveillance.csv: {len(agg)} rows")
+    manifest_lines.append("")
+    manifest_lines.append("SHA-256 checksums:")
+    manifest_lines.append(f"- Reports.csv: {sha256_file(reports_csv)}")
+    manifest_lines.append(f"- Drugs.csv: {sha256_file(drugs_csv)}")
+    manifest_lines.append(f"- Reactions.csv: {sha256_file(reactions_csv)}")
+    manifest_lines.append(f"- Safety_surveillance.csv: {sha256_file(agg_csv)}")
+
+    manifest_path = os.path.join(out_dir, "MANIFEST.txt")
+    with open(manifest_path, "w", encoding="utf-8") as mf:
+        mf.write("\n".join(manifest_lines) + "\n")
+
     return {
         "reports": reports_csv,
         "drugs": drugs_csv,
         "reactions": reactions_csv,
         "aggregated": agg_csv,
         "qa_summary": qa_path,
+        "manifest": manifest_path,
     }
-
-
