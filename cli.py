@@ -48,7 +48,6 @@ def cmd_process(args: argparse.Namespace) -> None:
     for k, v in result.items():
         print(f"- {k}: {v}")
 
-    # Copy documentation and analysis notebook into deliverables for grading
     repo_root = Path(PATHS.project_root)
     for src_rel in ["CODEBOOK.md", "DATACITE.json", "notebooks/analysis.ipynb"]:
         src = repo_root / src_rel

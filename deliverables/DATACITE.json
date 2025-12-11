@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "http://datacite.org/schema/kernel-4",
+  "identifier": {
+    "identifier": "https://github.com/srikarmanikonda/cs-598-final-project",
+    "identifierType": "URL"
+  },
+  "types": {
+    "resourceTypeGeneral": "Dataset",
+    "resourceType": "Curated Dataset"
+  },
+  "titles": [
+    {
+      "title": "GLP-1 Safety Surveillance Dataset (FAERS + RxNorm)",
+      "titleType": "Main"
+    }
+  ],
+  "creators": [
+    {
+      "name": "Manikonda, Srikar",
+      "nameType": "Personal",
+      "affiliation": [
+        {
+          "name": "University of Illinois Urbana-Champaign"
+        }
+      ]
+    }
+  ],
+  "publisher": "GitHub",
+  "publicationYear": 2025,
+  "subjects": [
+    {"subject": "Pharmacovigilance", "subjectScheme": "MeSH"},
+    {"subject": "Adverse Drug Reaction Reporting Systems", "subjectScheme": "MeSH"},
+    {"subject": "GLP-1 Receptor Agonists", "subjectScheme": "MeSH"},
+    {"subject": "Semaglutide"},
+    {"subject": "Tirzepatide"},
+    {"subject": "FAERS"},
+    {"subject": "RxNorm"},
+    {"subject": "Data Curation"}
+  ],
+  "contributors": [],
+  "dates": [
+    {"date": "2025-01-01/2025-12-31", "dateType": "Collected"},
+    {"date": "2025-12-10", "dateType": "Created"}
+  ],
+  "language": "en",
+  "version": "1.0.0",
+  "rightsList": [
+    {
+      "rights": "Creative Commons Zero v1.0 Universal",
+      "rightsIdentifier": "CC0-1.0",
+      "rightsURI": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ],
+  "descriptions": [
+    {
+      "description": "An analysis-ready, curated dataset of U.S. FDA Adverse Event Reporting System (FAERS) reports for GLP-1 receptor agonists (semaglutide and tirzepatide) from 2021 to present. The dataset includes three linked relational tables (Reports, Drugs, Reactions) with standardized fields, RxNorm-normalized drug identifiers, and an aggregated Safety_surveillance.csv for convenience. Includes full provenance, quality assessment, and reproducible workflow.",
+      "descriptionType": "Abstract"
+    },
+    {
+      "description": "Data acquired via openFDA FAERS API with pagination and rate limiting. Processing includes schema validation, deduplication by safetyreportid, date normalization to ISO-8601, standardization of demographics and outcome flags, and RxNorm resolution for drug names and ingredients. Quality assessment reports validation counts and field completeness.",
+      "descriptionType": "Methods"
+    }
+  ],
+  "geoLocations": [
+    {
+      "geoLocationPlace": "United States"
+    }
+  ],
+  "fundingReferences": [],
+  "relatedIdentifiers": [
+    {
+      "relatedIdentifier": "https://open.fda.gov/apis/drug/event/",
+      "relatedIdentifierType": "URL",
+      "relationType": "IsDerivedFrom"
+    },
+    {
+      "relatedIdentifier": "https://rxnav.nlm.nih.gov/",
+      "relatedIdentifierType": "URL",
+      "relationType": "References"
+    }
+  ]
+}

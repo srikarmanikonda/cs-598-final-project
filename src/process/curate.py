@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
+from tqdm import tqdm
 
 from src.common.config import PATHS, ensure_directories
 from src.common.utils import parse_faers_date, sha256_file
@@ -85,8 +86,10 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
     best_record: Dict[str, Dict[str, Any]] = {}
     completeness: Dict[str, int] = {}
 
+    print("Loading raw JSON file...")
     with open(raw_json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+    print(f"Loaded {len(data)} records")
 
     if not isinstance(data, list):
         data = []
@@ -110,7 +113,8 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
 
     rejected_reasons: Dict[str, int] = defaultdict(int)
     valid_records: List[Dict[str, Any]] = []
-    for rec in data:
+    print("Validating records...")
+    for rec in tqdm(data, desc="Validating"):
         ok, reason = validate_record(rec)
         if ok:
             valid_records.append(rec)
@@ -121,6 +125,7 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
     total_valid = len(valid_records)
     total_rejected = total_input - total_valid
 
+    print("Deduplicating records...")
     for rec in valid_records:
         rep_id = rec.get("safetyreportid")
         if not rep_id:
@@ -136,8 +141,10 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
             if (cur_date or "") > (prev_date or ""):
                 best_record[rep_id] = rec
                 completeness[rep_id] = non_missing
+    print(f"Deduplicated to {len(best_record)} unique reports")
 
-    for rep_id, rec in best_record.items():
+    print(f"Processing {len(best_record)} reports (with RxNorm lookups)...")
+    for rep_id, rec in tqdm(best_record.items(), desc="Processing"):
         received_date = parse_faers_date(rec.get("receivedate"))
         event_date = parse_faers_date(rec.get("receiptdate"))
 
@@ -196,8 +203,14 @@ def curate_tables(raw_json_path: str, out_dir: str) -> Dict[str, str]:
                 role_std = "SECONDARY"
             else:
                 role_std = "ASSOCIATED"
-            rxcui = rx.get_rxcui(original) if original else None
-            ing_rxcui, ing_name = rx.get_ingredient(rxcui) if rxcui else (None, None)
+
+
+            target_drugs = ["semaglutide", "tirzepatide", "ozempic", "mounjaro", "wegovy", "rybelsus", "zepbound"]
+            if original and any(t in original.lower() for t in target_drugs):
+                rxcui = rx.get_rxcui(original)
+                ing_rxcui, ing_name = rx.get_ingredient(rxcui) if rxcui else (None, None)
+            else:
+                rxcui, ing_rxcui, ing_name = None, None, None
             drugs_rows.append(
                 {
                     "safetyreportid": rep_id,

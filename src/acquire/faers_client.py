@@ -22,8 +22,8 @@ def _build_search_query(
     brand_terms = [f'patient.drug.medicinalproduct:"{b}"' for b in brands]
     terms = drug_terms + brand_terms
     drug_clause = "(" + " OR ".join(terms) + ")"
-    date_clause = f"(receivedate:[{start_date.replace('-', '')}+TO+{end_date.replace('-', '')}])"
-    country_clause = f"(occurcountry:\"{country}\")"
+    date_clause = f"(receivedate:[{start_date.replace('-', '')} TO {end_date.replace('-', '')}])"
+    country_clause = f'(occurcountry:"{country}")'
     return f"{drug_clause} AND {date_clause} AND {country_clause}"
 
 

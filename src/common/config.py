@@ -15,7 +15,7 @@ class RxNormConfig:
     base_url: str = "https://rxnav.nlm.nih.gov/REST"
     cache_dir: str = os.environ.get("RXNORM_CACHE_DIR", "artifacts/cache")
     cache_file: str = os.path.join(cache_dir, "rxnorm_cache.json")
-    requests_per_minute: int = 60
+    requests_per_minute: int = 60000
 
 
 @dataclass

@@ -1,0 +1,14 @@
+MANIFEST
+========
+
+Row counts:
+- Reports.csv: 25100 rows
+- Drugs.csv: 136581 rows
+- Reactions.csv: 65341 rows
+- Safety_surveillance.csv: 25100 rows
+
+SHA-256 checksums:
+- Reports.csv: 462f4e6213b108330d2757e473f605e901ea67d99ebe445fc86a67835dfe7171
+- Drugs.csv: 333eb855c967f359f3e74cea923012587971f515ab3ec2af8de289c1d4b96c2d
+- Reactions.csv: 6782df1d44968c38d5b87e2cc97186f3c059663abaf2c5080591d3853ed6efab
+- Safety_surveillance.csv: d1fcdd69799dcdb5dfb5480b638fd5833ced220ecfac33291cbb3bec2e310f66

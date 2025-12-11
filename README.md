@@ -10,7 +10,8 @@ cd cs-598-final-project
 
 pip install -r requirements.txt
 
-# Acquire raw FAERS data via CLI
+# Acquire raw FAERS data via CLI. NOTE: one will need an openFDA API key you can generate here: https://open.fda.gov/apis/authentication/
+
 python cli.py acquire --from 2021-01-01 --to 2025-12-31 --country US \
     --drugs semaglutide,tirzepatide --brands Ozempic,Mounjaro \
     --out artifacts/raw_faers

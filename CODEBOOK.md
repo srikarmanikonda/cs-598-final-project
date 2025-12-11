@@ -1,57 +1,73 @@
 # Dataset Codebook
 
-This codebook documents the curated outputs.
+This codebook documents the curated outputs for the GLP-1 Safety Surveillance Dataset.
 
-Relations
-- Reports.csv: one row per FAERS case (`safetyreportid`)
-- Drugs.csv: one row per (case, product)
-- Reactions.csv: one row per (case, reaction term)
-- Safety_surveillance.csv: left-joined aggregation (lists per case) for convenience
+## Relations
 
-Reports.csv Fields
-- safetyreportid: String; FAERS case ID
-- received_date: ISO-8601 date (YYYY-MM-DD) when available
-- event_date: ISO-8601 date derived from `receiptdate` when present
-- patient_age_years: Age in years (float), converted when unit available
-- age_unit_raw: Original age unit code/string
-- patient_sex: F/M/U standardized
-- reporter_type: PHYSICIAN/PHARMACIST/CONSUMER/OTHER
-- reporter_type_raw: Original reporter text (if present)
-- country: ISO-3166 alpha-2 uppercased if provided
-- country_raw: Original occurcountry
-- death, hospitalization, life_threatening, disability, congenital_anomaly, intervention, other: boolean flags
+- Reports.csv: One row per FAERS case (`safetyreportid`)
+- Drugs.csv: One row per (case, product)
+- Reactions.csv: One row per (case, reaction term)
+- Safety_surveillance.csv: One row per case with list-aggregated drugs/reactions
 
-Drugs.csv Fields
-- safetyreportid: Join key
-- drug_role: PRIMARY/SECONDARY/ASSOCIATED (mapped from FAERS characterization)
-- drug_name_original: Original medicinal product string
-- rxcui: RxNorm concept ID resolved by name (best effort)
-- ingredient_rxcui, ingredient_name, brand_name: placeholders for future enrichment
+## Reports.csv Fields
 
-Reactions.csv Fields
-- safetyreportid: Join key
-- reaction_term_text: MedDRA PT as provided (trimmed whitespace)
+- safetyreportid: String; FAERS case identifier (primary key)
+- received_date: Date (ISO-8601); date report was received (YYYY-MM-DD)
+- event_date: Date (ISO-8601); date of adverse event when available
+- patient_age_years: Float; patient age converted to years
+- age_unit_raw: String; original age unit code (YR, MON, DY, etc.)
+- patient_sex: String; standardized sex: F, M, or U (unknown)
+- reporter_type: String; standardized: PHYSICIAN, PHARMACIST, CONSUMER, OTHER
+- reporter_type_raw: String; original reporter qualification text
+- country: String; ISO-3166 alpha-2 country code (uppercased)
+- country_raw: String; original country value
+- death: Boolean; outcome flag: death reported
+- hospitalization: Boolean; outcome flag: hospitalization reported
+- life_threatening: Boolean; outcome flag: life-threatening event
+- disability: Boolean; outcome flag: disability reported
+- congenital_anomaly: Boolean; outcome flag: congenital anomaly
+- intervention: Boolean; outcome flag: required intervention
+- other: Boolean; outcome flag: other serious outcome
 
-Aggregated CSV
-- Safety_surveillance.csv: Reports joined with list-aggregated Drugs and Reactions by case
+## Drugs.csv Fields
 
-Provenance
-- `logs/run_<run_id>.json`: window, query parameters
-- `logs/requests_<run_id>.jsonl`: per-request log entries
+- safetyreportid: String; foreign key to Reports.csv
+- drug_role: String; PRIMARY, SECONDARY, or ASSOCIATED
+- drug_name_original: String; original medicinal product name from FAERS
+- rxcui: String; RxNorm Concept Unique Identifier (best-effort resolution)
+- ingredient_rxcui: String; RxNorm ingredient-level RxCUI
+- ingredient_name: String; normalized ingredient name from RxNorm
+- brand_name: String; brand name (placeholder for future enrichment)
 
-Notes
-- FAERS data may contain duplicates and variable completeness; deduplication keeps the most complete record per `safetyreportid` with a tie-break on latest `received_date`.
-- RxNorm resolution is name-based and best-effort; not all products will resolve.
+## Reactions.csv Fields
 
+- safetyreportid: String; foreign key to Reports.csv
+- reaction_term_text: String; MedDRA Preferred Term (whitespace normalized)
 
+## Aggregated CSV
 
+Safety_surveillance.csv joins Reports with list-aggregated Drugs and Reactions columns for convenience analysis.
 
+## Provenance Files
+
+- logs/run_<run_id>.json: Run metadata: query window, API parameters, drugs/brands
+- logs/requests_<run_id>.jsonl: Per-request log: URL, params, status, record count, timing
+- artifacts/raw_faers/manifest_<run_id>.json: Raw file manifest with SHA-256 checksum
+- deliverables/MANIFEST.txt: Row counts and checksums for curated CSVs
+- deliverables/QA_SUMMARY.md: Validation summary: totals, rejections, field completeness
+
+## Data Quality Notes
+
+- Deduplication: Records are deduplicated by `safetyreportid`, keeping the most complete record (highest non-null field count) with tie-break on latest `received_date`.
+- Schema validation: Records missing `safetyreportid`, `patient` object, or both drugs and reactions are rejected and counted in QA_SUMMARY.md.
+- RxNorm resolution: Name-based lookup; not all products resolve to RxCUI.
+- FAERS limitations: Voluntary reporting system; cannot estimate incidence or risk. Subject to under-reporting, duplicate reports, and reporting bias.
 
 ## How to Run
 
 1) Install dependencies
 ```bash
-make install
+pip install -r requirements.txt
 ```
 
 2) Acquire raw FAERS JSON (writes to artifacts/raw_faers)
@@ -64,8 +80,7 @@ python cli.py acquire --from 2021-01-01 --to 2025-12-31 --country US --drugs sem
 python cli.py process --raw-file artifacts/raw_faers/faers_<run_id>.json --out-dir deliverables
 ```
 
-Alternative via Makefile
+4) Create release archive
 ```bash
-make acquire
-make process
+python scripts/release.py --deliverables-dir deliverables --out releases
 ```

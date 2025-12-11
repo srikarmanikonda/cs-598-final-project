@@ -2,7 +2,10 @@
 import argparse
 import os
 import shutil
+import sys
 import time
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.common.config import PATHS, ensure_directories
 from src.common.utils import sha256_file
