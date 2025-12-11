@@ -1,5 +1,8 @@
 # GLP-1 Safety Surveillance Dataset
 
+NOTE: I've already run the workflow end to end. Please follow these instructions to re-run if needed but the full outputs will be present
+
+
 A reproducible data curation pipeline for FDA Adverse Event Reporting System (FAERS) data on GLP-1 receptor agonists (semaglutide/Ozempic, tirzepatide/Mounjaro).
 
 ## Prerequisites
@@ -101,10 +104,10 @@ cs-598-final-project/
 │   └── release.py         # Release archive creation
 ├── notebooks/
 │   └── analysis.ipynb     # Exploratory analysis
-├── artifacts/             # Raw data and caches (gitignored)
-├── deliverables/          # Curated outputs (gitignored)
-├── releases/              # Release archives (gitignored)
-├── logs/                  # Provenance logs (gitignored)
+├── artifacts/             # Raw data and caches
+├── deliverables/          # Curated outputs
+├── releases/              # Release archives
+├── logs/                  # Provenance logs
 ├── CODEBOOK.md            # Data documentation
 ├── DATACITE.json          # Dataset metadata
 └── REPORT.md              # Project report

@@ -2,8 +2,7 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 artifacts/
-releases/
-logs/
+
 .env
 *.zip
 *.tar.gz
