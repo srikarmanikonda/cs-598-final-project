@@ -30,6 +30,7 @@ export OPENFDA_API_KEY="your-api-key-here"
 **Why?** Without an API key, openFDA limits you to 60 requests/minute. With a key, you get 240 requests/minute (4x faster).
 
 ### 3. Acquire Raw FAERS Data
+Note: This Process takes a very long time
 
 ```bash
 python cli.py acquire --from 2024-01-01 --to 2024-12-31 --country US \
