@@ -104,7 +104,7 @@ cs-598-final-project/
 │   └── release.py         # Release archive creation
 ├── notebooks/
 │   └── analysis.ipynb     # Exploratory analysis
-├── artifacts/             # Raw data and caches
+├── artifacts/             # Raw data and caches (gitignored due to file size)
 ├── deliverables/          # Curated outputs
 ├── releases/              # Release archives
 ├── logs/                  # Provenance logs
