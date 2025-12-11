@@ -1,6 +1,5 @@
 # GLP-1 Safety Surveillance Dataset
 
-NOTE: I've already run the workflow end to end. Please follow these instructions to re-run if needed but the full outputs will be present
 
 
 A reproducible data curation pipeline for FDA Adverse Event Reporting System (FAERS) data on GLP-1 receptor agonists (semaglutide/Ozempic, tirzepatide/Mounjaro).
@@ -9,6 +8,9 @@ A reproducible data curation pipeline for FDA Adverse Event Reporting System (FA
 
 - Python 3.10+
 - openFDA API key (optional but **strongly recommended** for faster data acquisition)
+
+NOTE: I've already run the workflow end to end. Please follow these instructions to re-run if needed but the full outputs will be present in the deliverables folder
+
 
 ## Quick Start
 
